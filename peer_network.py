@@ -9,6 +9,7 @@ import functools
 import jsonnode
 
 node = jsonnode.Node(6969)
+print(node.ipv4())
 
 remote_ip = input("Remote IPv4:")
 
