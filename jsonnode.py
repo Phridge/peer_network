@@ -55,6 +55,7 @@ class Message:
 class Node:
     def __init__(self, host_port, af=AF_INET):
         self.host = ("0.0.0.0", host_port)
+        self.af = af
         self.inq = queue.Queue()
         self.outq = queue.Queue()
 
@@ -105,8 +106,13 @@ class Node:
                         break
                 
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-                    client.connect(message.adr)
-                    client.sendall(encode_json(message.data))
+                    while not self.shutdown:
+                        try:
+                            client.connect(message.adr)
+                            client.sendall(encode_json(message.data))
+                        except socket.error as e:
+                            print("Send error:", e)
+
             print("Client finished")
 
 
@@ -119,15 +125,21 @@ class Node:
     def send(self, message):
         self.outq.put(message)
 
-    def ipv4(self):
+    def public_ipv4(self):
         return get_own_ipv4()
-    
+
+    def local_ipv4(self):    
+        return socket.getaddrinfo(socket.gethostname(), self.host[1], proto=socket.IPPROTO_TCP, family=socket.AF_INET)[0][4][0]
+        
     def host_ipv4(self):
         ipv4 = get_own_ipv4()
         return ipv4, self.host[1] if ipv4 else None
 
-    def ipv6(self):
+    def public_ipv6(self):
         return get_own_ipv6()
+    
+    def local_ipv6(self):    
+        return socket.getaddrinfo(socket.gethostname(), self.host[1], proto=socket.IPPROTO_TCP, family=socket.AF_INET6)[0][4][0]
     
     def host_ipv6(self):
         ipv6 = get_own_ipv6()

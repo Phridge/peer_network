@@ -9,12 +9,11 @@ import functools
 import jsonnode
 
 node = jsonnode.Node(6969)
-print(node.ipv4())
 
-remote_ip = input("Remote IPv4:")
+print(node.public_ipv4())
+print(node.local_ipv4())
+print(node.public_ipv6())
+print(node.local_ipv6())
 
-node.send(jsonnode.Message((remote_ip, 6969), {"Hello": "There!"}))
-print(node.receive())
 
 node.close()
-
